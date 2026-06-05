@@ -1,0 +1,105 @@
+{
+  "manifest_version": "0.3",
+  "name": "1password-developer-environments",
+  "display_name": "1Password Developer Environments",
+  "version": "0.1.0",
+  "description": "Manage 1Password Developer Environments from Claude on macOS. Set up, mount, and inspect project secrets and .env files without exposing values.",
+  "long_description": "Connects Claude to the 1Password desktop app's local MCP server for [1Password Developer Environments](https://www.1password.dev/).\n\nThe extension lets Claude help with secure project environment setup — listing Developer Environments, inspecting variable names, adding variables, and creating local `.env` mounts. Secret values stay controlled by the 1Password desktop app and are never shared with Claude.\n\n**Platform:** macOS only. The MCP server binary ships with the 1Password desktop app and runs locally; nothing is sent to a remote 1Password service by this extension.\n\n**Prerequisites:**\n\n- macOS with the 1Password desktop app installed.\n- The **1Password Labs MCP Server** experiment enabled in the desktop app (`onepassword://settings/labs`).\n- A 1Password account with Developer Environments enabled.",
+  "author": {
+    "name": "1Password",
+    "url": "https://1password.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/1Password/1password-claude-plugin.git"
+  },
+  "homepage": "https://www.1password.dev/",
+  "documentation": "https://www.1password.dev/environments/mcp-claude-server",
+  "support": "https://support.1password.com",
+  "license": "MIT",
+  "keywords": [
+    "1password",
+    "environment",
+    "secret",
+    "dotenv",
+    "dev secrets",
+    "op"
+  ],
+  "privacy_policies": [
+    "https://1password.com/legal/privacy"
+  ],
+  "server": {
+    "type": "binary",
+    "entry_point": "/Applications/1Password.app/Contents/MacOS/onepassword-mcp",
+    "mcp_config": {
+      "command": "/Applications/1Password.app/Contents/MacOS/onepassword-mcp",
+      "args": []
+    }
+  },
+  "tools": [
+    {
+      "name": "authenticate",
+      "description": "Authenticate with the 1Password desktop app and return the accountId. Call this first in a turn unless you already have an accountId. The desktop app may prompt the user for approval on first connection."
+    },
+    {
+      "name": "list_environments",
+      "description": "List Developer Environments for an account. Requires accountId."
+    },
+    {
+      "name": "create_environment",
+      "description": "Create a new Developer Environment. Requires accountId and a name."
+    },
+    {
+      "name": "rename_environment",
+      "description": "Rename an existing Developer Environment. Requires accountId and environmentId."
+    },
+    {
+      "name": "list_variables",
+      "description": "List variable names in an Environment without returning their values. Requires accountId and environmentId. Summarize names only — never request or display values."
+    },
+    {
+      "name": "append_variables",
+      "description": "Add or update Environment variables. Requires accountId and environmentId. Mark secret values as concealed; use concealed:false only for non-sensitive values such as URLs or feature flags. Ask the user before creating or modifying variables unless the request is already explicit."
+    },
+    {
+      "name": "create_local_env_file",
+      "description": "Mount an Environment as a local .env file. Requires accountId, environmentId, environmentName, and an absolute mountPath. macOS only. Do not read the mounted file to verify it — use list_local_env_files instead."
+    },
+    {
+      "name": "list_local_env_files",
+      "description": "List existing local .env mounts for an Environment. Requires accountId and environmentId."
+    }
+  ],
+  "tools_generated": false,
+  "prompts": [
+    {
+      "name": "mount-env",
+      "description": "Mount a 1Password Developer Environment as this project's local .env file.",
+      "arguments": [
+        "environment"
+      ],
+      "text": "Mount the 1Password Developer Environment \"${arguments.environment}\" as a local .env file in the current project.\n\nSteps:\n1. Call authenticate and store the accountId. The 1Password desktop app may prompt for approval.\n2. Call list_environments to resolve \"${arguments.environment}\" to an environmentId. If the name is ambiguous, ask me to choose — do not guess.\n3. Call list_local_env_files to check for an existing mount at the target path.\n4. Derive the absolute mountPath by appending /.env to the current workspace root.\n5. If no duplicate exists, call create_local_env_file with accountId, environmentId, environmentName, and the absolute mountPath.\n6. Report the mount path and Environment name. Do not read the mounted .env file to verify it."
+    },
+    {
+      "name": "list-environments",
+      "description": "List my 1Password Developer Environments.",
+      "arguments": [],
+      "text": "List my 1Password Developer Environments. Call authenticate first to obtain an accountId (the desktop app may prompt for approval), then call list_environments and summarize the results."
+    },
+    {
+      "name": "inspect-variables",
+      "description": "Show the variable names in a 1Password Developer Environment without revealing values.",
+      "arguments": [
+        "environment"
+      ],
+      "text": "Show the variable names in the 1Password Developer Environment \"${arguments.environment}\".\n\n1. Call authenticate and store the accountId.\n2. Call list_environments and resolve \"${arguments.environment}\" to an environmentId, asking me to choose if it is ambiguous.\n3. Call list_variables and summarize the returned variable names only. Do not request or display any secret values."
+    }
+  ],
+  "prompts_generated": false,
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin"
+    ]
+  }
+}
