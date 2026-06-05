@@ -1,5 +1,5 @@
 # 1Password Developer Environments — Claude Desktop Extension
-
+# THIS IS A DRAFT/WIP
 A Claude [desktop extension](https://claude.com/docs/connectors/building/mcpb) (MCPB)
 that connects Claude to the 1Password desktop app's local MCP server for
 [1Password Developer Environments](https://www.1password.dev/).
