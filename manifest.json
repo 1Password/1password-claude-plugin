@@ -25,14 +25,12 @@
     "dev secrets",
     "op"
   ],
-  "privacy_policies": [
-    "https://1password.com/legal/privacy"
-  ],
+  "privacy_policies": ["https://1password.com/legal/privacy"],
   "server": {
     "type": "binary",
-    "entry_point": "/Applications/1Password.app/Contents/MacOS/onepassword-mcp",
+    "entry_point": "1password-mcp",
     "mcp_config": {
-      "command": "/Applications/1Password.app/Contents/MacOS/onepassword-mcp",
+      "command": "1password-mcp",
       "args": []
     }
   },
@@ -75,9 +73,7 @@
     {
       "name": "mount-env",
       "description": "Mount a 1Password Developer Environment as this project's local .env file.",
-      "arguments": [
-        "environment"
-      ],
+      "arguments": ["environment"],
       "text": "Mount the 1Password Developer Environment \"${arguments.environment}\" as a local .env file in the current project.\n\nSteps:\n1. Call authenticate and store the accountId. The 1Password desktop app may prompt for approval.\n2. Call list_environments to resolve \"${arguments.environment}\" to an environmentId. If the name is ambiguous, ask me to choose — do not guess.\n3. Call list_local_env_files to check for an existing mount at the target path.\n4. Derive the absolute mountPath by appending /.env to the current workspace root.\n5. If no duplicate exists, call create_local_env_file with accountId, environmentId, environmentName, and the absolute mountPath.\n6. Report the mount path and Environment name. Do not read the mounted .env file to verify it."
     },
     {
@@ -89,17 +85,13 @@
     {
       "name": "inspect-variables",
       "description": "Show the variable names in a 1Password Developer Environment without revealing values.",
-      "arguments": [
-        "environment"
-      ],
+      "arguments": ["environment"],
       "text": "Show the variable names in the 1Password Developer Environment \"${arguments.environment}\".\n\n1. Call authenticate and store the accountId.\n2. Call list_environments and resolve \"${arguments.environment}\" to an environmentId, asking me to choose if it is ambiguous.\n3. Call list_variables and summarize the returned variable names only. Do not request or display any secret values."
     }
   ],
   "prompts_generated": false,
   "compatibility": {
     "claude_desktop": ">=1.0.0",
-    "platforms": [
-      "darwin"
-    ]
+    "platforms": ["darwin"]
   }
 }
