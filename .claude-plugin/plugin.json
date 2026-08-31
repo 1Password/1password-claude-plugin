@@ -2,7 +2,7 @@
   "name": "1password",
   "displayName": "1Password",
   "version": "0.1.0",
-  "description": "1Password Developer Environments for Claude Code. In development — the mount validation hook, agent skill, and MCP configuration land in subsequent changes.",
+  "description": "1Password Developer Environments for Claude Code: a PreToolUse hook that validates locally mounted .env files before Bash commands run. Requires the 1Password desktop app on macOS or Linux. In development — the agent skill and MCP configuration land in subsequent changes.",
   "author": {
     "name": "1Password"
   },
@@ -16,6 +16,8 @@
     "environment",
     "env",
     "dotenv",
-    "developer-environments"
+    "developer-environments",
+    "hooks",
+    "validation"
   ]
 }
