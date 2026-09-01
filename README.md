@@ -1,8 +1,10 @@
 # 1Password Plugin for Claude Code
 
-> **Status: in development.** Not yet published to the Claude Code plugin marketplace.
+> **Status:** all three components are implemented (hook, agent skill, MCP configuration). Not yet published to a Claude Code plugin marketplace — install from source for now.
 
-The official [1Password](https://1password.com) plugin for [Claude Code](https://code.claude.com). It ships a **PreToolUse hook** that validates locally mounted `.env` files before Bash commands run. Secret values stay in 1Password — the agent sees variable names and mount paths, not secret contents.
+The official [1Password](https://1password.com) plugin for [Claude Code](https://code.claude.com). It ships three pieces that work together: a **PreToolUse hook** that validates locally mounted `.env` files before Bash commands run, an **agent skill** with the complete Developer Environment workflow, and **MCP configuration** for the 1Password desktop app server. Secret values stay in 1Password — the agent sees variable names and mount paths, not secret contents.
+
+Install the **plugin** rather than hand-configuring an MCP entry on its own. The bundled `1password-environments` skill is the authoritative agent workflow; the MCP server's built-in documentation resources cover tool basics only and omit the import-and-mount steps.
 
 For more on 1Password's developer tools, see the [1Password Developer Documentation](https://developer.1password.com).
 
@@ -11,9 +13,13 @@ For more on 1Password's developer tools, see the [1Password Developer Documentat
 - [1Password](https://1password.com) subscription
 - [1Password desktop app](https://1password.com/downloads) on **macOS or Linux**
 - [Claude Code](https://code.claude.com)
-- [sqlite3](https://www.sqlite.org/) installed and available in your `PATH` (pre-installed on macOS; install via your package manager on Linux)
 
-> **Platform support:** Local `.env` mounts and mount validation are supported on **macOS and Linux**, including WSL. On **Windows**, the hook exits immediately with no decision so Bash is not blocked; 1Password Environments has no local `.env` mounts on Windows.
+Additional requirements by feature:
+
+- **Hook** — [sqlite3](https://www.sqlite.org/) installed and available in your `PATH` (pre-installed on macOS; install via your package manager on Linux)
+- **MCP** — the 1Password Labs **MCP Server** experiment enabled in the desktop app (`onepassword://settings/labs`). If the setting is missing, your account may not have the `ai-local-mcp-server` feature flag. The plugin's `.mcp.json` launches the `1password-mcp` command from your `PATH`, as described in the [1Password MCP server documentation](https://www.1password.dev/environments/mcp-server).
+
+> **Platform support:** MCP, local `.env` mounts, and mount validation are supported on **macOS and Linux**, including WSL. On **Windows**, the hook exits immediately with no decision so Bash is not blocked; 1Password Environments has no local `.env` mounts on Windows.
 
 ## Installation and Setup
 
@@ -26,7 +32,7 @@ Before using this plugin, configure your secrets in 1Password:
 
 ### Step 2: Install the plugin
 
-When published, install from the Claude Code plugin marketplace. This registers the validation hook from `hooks/hooks.json`.
+When published, install from the Claude Code plugin marketplace. This registers the validation hook, the `1password-environments` agent skill, and the MCP server configuration together.
 
 **From a marketplace** (once available):
 
@@ -42,6 +48,24 @@ claude --plugin-dir /path/to/1password-claude-plugin
 ```
 
 See [Discover and install plugins](https://code.claude.com/docs/en/discover-plugins) and [Plugin marketplaces](https://code.claude.com/docs/en/plugin-marketplaces) for the full installation flow.
+
+### Step 3: Enable MCP in 1Password (required for Environment management)
+
+Enable the **MCP Server** experiment in the 1Password desktop app: open **Settings → Labs** (or use `onepassword://settings/labs`) and turn on **MCP Server**. The plugin's `.mcp.json` connects Claude Code to that server after this step.
+
+The plugin registers the MCP command documented by 1Password:
+
+```json
+{
+  "mcpServers": {
+    "1password": {
+      "command": "1password-mcp"
+    }
+  }
+}
+```
+
+Install the 1Password desktop app on macOS or Linux so `1password-mcp` is available on your `PATH`. For platform-specific install paths and troubleshooting, see the [1Password MCP server documentation](https://www.1password.dev/environments/mcp-server).
 
 ## Features
 
@@ -132,6 +156,39 @@ echo '{"hook_event_name":"PreToolUse","tool_name":"Bash","cwd":"/path/to/your/pr
 
 When not running in debug mode, the hook writes logs to `/tmp/1password-claude-code-hooks.log`. Log entries include timestamps and details about 1Password queries, validation results, and permission decisions.
 
+### MCP and agent skill
+
+The plugin connects Claude Code to the local 1Password MCP server and bundles the **`1password-environments`** skill (`skills/1password-environments/SKILL.md`). Claude reads that skill before calling MCP tools — it defines the complete workflow for importing a plain `.env` file, appending variables, and mounting at the source path. The MCP server's built-in docs cover tool basics but omit those import-and-mount steps.
+
+See `skills/1password-environments/reference.md` for setup, mount conflicts, and validation details.
+
+#### Example prompts
+
+- "List my 1Password Environments"
+- "Mount my staging Environment as `.env` in this repo"
+- "What variables are in my production Environment?"
+- "Create a new Environment called `my-app-dev`"
+- "Create an Environment from my project `.env` file"
+- "Import `.env` into 1Password and mount it here"
+- "Add a placeholder for my OpenAI API key"
+
+#### MCP tools
+
+Tools are namespaced `mcp__plugin_1password_1password__<tool>`.
+
+| Tool | Description |
+|------|-------------|
+| `authenticate` | Authenticate with the 1Password desktop app; returns `accountId` |
+| `list_environments` | List Developer Environments for an account |
+| `create_environment` | Create a new Developer Environment |
+| `rename_environment` | Rename an existing Developer Environment |
+| `list_variables` | List variable names in an Environment (no values) |
+| `append_variables` | Add or update Environment variables |
+| `create_local_env_file` | Mount an Environment as a local `.env` file |
+| `list_local_env_files` | List existing local `.env` mounts for an Environment |
+
+Confirm the MCP server is connected with `/plugin` after installing the plugin and enabling the Labs experiment in 1Password.
+
 ## Plugin Structure
 
 ```
@@ -141,10 +198,15 @@ When not running in debug mode, the hook writes logs to `/tmp/1password-claude-c
 │   └── marketplace.json               # Marketplace catalog (for distribution)
 ├── hooks/
 │   └── hooks.json                     # PreToolUse mount validation
+├── skills/
+│   └── 1password-environments/
+│       ├── SKILL.md                   # Agent skill for MCP workflows
+│       └── reference.md               # Setup, mount conflicts, troubleshooting
 ├── scripts/
 │   ├── lib/
 │   │   └── telemetry.sh               # Opt-in telemetry helpers for the validation hook
 │   └── validate-mounted-env-files.sh  # Bash hook (macOS / Linux)
+├── .mcp.json                          # MCP server configuration
 ├── LICENSE
 └── README.md
 ```
@@ -171,6 +233,7 @@ The validation hook emits **opt-in** telemetry so 1Password can understand plugi
 - [1Password Agent Hooks](https://github.com/1Password/agent-hooks) — the original hooks repository this plugin is based on
 - [1Password Environments](https://developer.1password.com/docs/environments) — documentation for 1Password's environment and secrets management
 - [1Password Local `.env` Files](https://developer.1password.com/docs/environments/local-env-file) — how local `.env` file mounting works
+- [1Password MCP server documentation](https://www.1password.dev/environments/mcp-server) — MCP setup and troubleshooting
 - [Claude Code Hooks](https://code.claude.com/docs/en/hooks) — how Claude Code hooks work
 - [Claude Code Plugins](https://code.claude.com/docs/en/plugins) — how to create and distribute Claude Code plugins
 
