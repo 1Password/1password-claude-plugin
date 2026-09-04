@@ -1,0 +1,16 @@
+{
+  "name": "1password",
+  "owner": {
+    "name": "1Password",
+    "url": "https://www.1password.dev/"
+  },
+  "description": "Official 1Password plugins for Claude Code",
+  "plugins": [
+    {
+      "name": "1password",
+      "source": "./",
+      "description": "1Password Developer Environments for Claude Code",
+      "category": "security"
+    }
+  ]
+}
