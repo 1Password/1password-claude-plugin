@@ -40,6 +40,10 @@ permission="allow"
 # The message for the agent to interpret if the permission is denied.
 agent_message=""
 
+# Reasons validation could not run. Reported to Claude on a passing decision so
+# it can warn the user the check was skipped.
+validation_warnings=()
+
 # Telemetry: which validation mode was used (set when entering the branch).
 resolved_mode=""
 # Telemetry: number of workspace-relevant mounts checked during this run.
@@ -124,7 +128,8 @@ parse_json_cwd() {
 #
 # Deny emits Claude Code's PreToolUse decision object. Pass emits *nothing*:
 # exit 0 with empty stdout means "no decision to report", so the tool call
-# continues through the user's normal permission flow.
+# continues through the user's normal permission flow. Pass with a validation
+# warning emits additionalContext but still no decision, so the call proceeds.
 #
 # Do not "helpfully" emit permissionDecision:"allow" here. In Claude Code that
 # is an active grant that skips the interactive permission prompt, not a neutral
@@ -145,6 +150,29 @@ output_response() {
     "hookEventName": "PreToolUse",
     "permissionDecision": "deny",
     "permissionDecisionReason": "$agent_msg_json"
+  }
+}
+EOF
+    elif [[ ${#validation_warnings[@]} -gt 0 ]]; then
+        # Pass, but tell Claude why nothing was checked so it can warn the user.
+        # No permissionDecision is set, so the command still runs.
+        local message="1Password could not validate this project's mounted .env files:"
+        local warning
+        for warning in "${validation_warnings[@]}"; do
+            message="${message} ${warning}"
+        done
+        message="${message} Warn the user that the command ran without this check."
+
+        log "Decision: pass with warning (no decision reported)"
+
+        local message_json
+        message_json=$(escape_json_string "$message")
+
+        cat << EOF
+{
+  "hookSpecificOutput": {
+    "hookEventName": "PreToolUse",
+    "additionalContext": "$message_json"
   }
 }
 EOF
@@ -557,6 +585,14 @@ has_toml_mount_paths_field() {
     return 1
 }
 
+# Extract quoted items from TOML array content
+extract_toml_array_items() {
+    local content="$1"
+    # Match both double-quoted and single-quoted strings using grep + sed
+    # This handles: "value", 'value', and mixed arrays
+    echo "$content" | grep -oE '"[^"]+"|'"'"'[^'"'"']+'"'" | sed 's/^["'"'"']//;s/["'"'"']$//' || true
+}
+
 # Parse TOML file and extract mount paths from top-level mount_paths field
 # Returns newline-separated list of mount paths
 # Returns empty string (but exit code 0) if mount_paths = []
@@ -571,9 +607,10 @@ parse_toml_mount_paths() {
     # Pure bash TOML parsing for environments entries
     # Handles formats like:
     #   mount_paths = [".env", "billing.env"]
+    #   mount_paths = ['.env', 'billing.env']
     #   mount_paths = [
     #     ".env",
-    #     "billing.env"
+    #     'billing.env'
     #   ]
     #   mount_paths = []
     local in_mount_paths_array=false
@@ -603,12 +640,7 @@ parse_toml_mount_paths() {
             in_mount_paths_array=false  # Array is complete on one line
 
             # Extract quoted strings from the array content
-            while [[ "$array_content" =~ \"([^\"]+)\" ]]; do
-                mount_paths="${mount_paths}${BASH_REMATCH[1]}"$'\n'
-                # Remove the matched string and any following comma/whitespace
-                array_content="${array_content#*\"${BASH_REMATCH[1]}\"}"
-                array_content=$(echo "$array_content" | sed 's/^[[:space:]]*,[[:space:]]*//;s/^[[:space:]]*//')
-            done
+            mount_paths="$(extract_toml_array_items "$array_content")"
         # Check for mount_paths = [ (multi-line array start)
         elif [[ "$line" =~ ^mount_paths[[:space:]]*=[[:space:]]*\[ ]]; then
             found_mount_paths_field=true
@@ -619,11 +651,7 @@ parse_toml_mount_paths() {
             # If array closes on same line, process it
             if [[ "$array_content" =~ \] ]]; then
                 array_content="${array_content%\]*}"
-                while [[ "$array_content" =~ \"([^\"]+)\" ]]; do
-                    mount_paths="${mount_paths}${BASH_REMATCH[1]}"$'\n'
-                    array_content="${array_content#*\"${BASH_REMATCH[1]}\"}"
-                    array_content=$(echo "$array_content" | sed 's/^[[:space:]]*,[[:space:]]*//;s/^[[:space:]]*//')
-                done
+                mount_paths="$(extract_toml_array_items "$array_content")"
                 in_mount_paths_array=false
                 array_content=""
             fi
@@ -635,11 +663,7 @@ parse_toml_mount_paths() {
                 local line_content="${line%\]*}"
                 array_content="${array_content} ${line_content}"
                 # Process the complete array content
-                while [[ "$array_content" =~ \"([^\"]+)\" ]]; do
-                    mount_paths="${mount_paths}${BASH_REMATCH[1]}"$'\n'
-                    array_content="${array_content#*\"${BASH_REMATCH[1]}\"}"
-                    array_content=$(echo "$array_content" | sed 's/^[[:space:]]*,[[:space:]]*//;s/^[[:space:]]*//')
-                done
+                mount_paths="$(extract_toml_array_items "$array_content")"
                 in_mount_paths_array=false
                 array_content=""
             else
@@ -716,9 +740,17 @@ log "Found ${#workspace_roots_array[@]} workspace root(s) to validate"
 db_path=""
 mount_hex_data=""
 
-db_path=$(find_1password_db "$os_type")
+# Both return non-zero on expected conditions. Handle the status explicitly, or
+# set -e exits before output_response and emit_telemetry_async run.
+if ! db_path=$(find_1password_db "$os_type"); then
+    db_path=""
+    validation_warnings+=("The 1Password database was not found, so 1Password may not be installed.")
+fi
 if [[ -n "$db_path" ]]; then
-    mount_hex_data=$(query_mounts "$db_path")
+    if ! mount_hex_data=$(query_mounts "$db_path"); then
+        mount_hex_data=""
+        validation_warnings+=("The 1Password database could not be read, which usually means 1Password is locked or not running.")
+    fi
 fi
 
 # Process each workspace root
@@ -738,13 +770,22 @@ for workspace_root in "${workspace_roots_array[@]}"; do
             resolved_mode="configured"
             log "environments.toml has mount_paths field defined - validating specified mounts"
 
-            # Parse and validate TOML mount paths
-            toml_mounts=$(parse_toml_mount_paths "$toml_file")
-            if [[ $? -ne 0 ]]; then
+            # Parse and validate TOML mount paths.
+            # Tested in the `if` itself: set -e exits before a `$?` check on the
+            # next line could ever run.
+            if ! toml_mounts=$(parse_toml_mount_paths "$toml_file"); then
                 log "Warning: Failed to parse environments.toml at ${toml_file}, falling back to default mode"
                 use_configured_mode=false
+                validation_warnings+=("The mount_paths setting in .1password/environments.toml could not be parsed and was ignored.")
             elif [[ -z "$toml_mounts" ]]; then
-                log "environments.toml specifies mount_paths = [] - no local .env files to validate for this workspace"
+                # An empty array disables validation on purpose. Any other
+                # mount_paths that yields no readable paths is malformed, so
+                # warn rather than skip silently.
+                if grep -qE '^[[:space:]]*mount_paths[[:space:]]*=[[:space:]]*\[[[:space:]]*\]' "$toml_file"; then
+                    log "environments.toml specifies mount_paths = [] - no local .env files to validate for this workspace"
+                else
+                    validation_warnings+=("No readable paths could be read from mount_paths in .1password/environments.toml, so nothing was validated.")
+                fi
                 continue
             fi
         else
