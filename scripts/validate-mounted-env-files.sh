@@ -442,6 +442,14 @@ query_mounts() {
 # MOUNT PARSING & VALIDATION FUNCTIONS
 # ============================================================================
 
+# Return 0 if $1 is $2 itself, or lies beneath it. Trailing slash on $2 is
+# tolerated; the /-boundary stops a sibling like /w/proj-legacy matching /w/proj.
+path_is_within() {
+    local candidate="$1"
+    local dir="${2%/}"
+    [[ "$candidate" == "$dir" || "$candidate" == "$dir"/* ]]
+}
+
 # Check if mount path is within project
 is_project_mount() {
     local mount_path="$1"
@@ -453,15 +461,10 @@ is_project_mount() {
     normalized_mount=$(normalize_path "$mount_path")
     normalized_project=$(normalize_path "$project_path")
 
-    # Ensure both paths end with / for consistent comparison
-    [[ "$normalized_project" != */ ]] && normalized_project="${normalized_project}/"
-
-    # Check if mount path starts with project path (mount is within project)
-    # Also check original paths in case normalization failed
-    if [[ "$normalized_mount" == "$normalized_project"* ]] || \
-       [[ "$normalized_mount" == "$project_path" ]] || \
-       [[ "$mount_path" == "$project_path"* ]] || \
-       [[ "$mount_path" == "$project_path" ]]; then
+    # Compare normalized paths first; fall back to the originals in case
+    # normalization succeeded for one argument but not the other.
+    if path_is_within "$normalized_mount" "$normalized_project" \
+       || path_is_within "$mount_path" "$project_path"; then
         return 0
     fi
 
