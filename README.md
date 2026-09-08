@@ -62,7 +62,9 @@ Every time Claude Code attempts to run a Bash command, the hook:
 3. **Passes** with no decision if all environment files are properly configured — your normal Bash permission settings apply unchanged.
 4. **Blocks** the command and provides clear error messages when files are missing or disabled.
 
-The hook uses a **"fail open"** approach: if 1Password is not installed, the database is unavailable, or `sqlite3` is missing, the hook reports no decision and execution proceeds. It never auto-approves a command — returning `permissionDecision: "allow"` would skip the permission prompt, so a passing check emits nothing (exit 0, empty stdout) and your normal permission settings apply.
+The hook uses a **"fail open"** approach: if 1Password is not installed, the database is unavailable, or `sqlite3` is missing, the hook reports no permission decision and execution proceeds. It never auto-approves a command. Returning `permissionDecision: "allow"` would skip the permission prompt, so a clean passing check emits nothing (exit 0, empty stdout) and your normal permission settings apply.
+
+When validation is skipped rather than passed, the hook still reports no decision, but attaches `additionalContext` explaining why. Claude can then tell you the check did not run, instead of the command appearing to pass validation silently.
 
 ##### Validation Modes
 
