@@ -1,8 +1,6 @@
 # 1Password Plugin for Claude Code
 
-> **Status:** all three components are implemented (hook, agent skill, MCP configuration). Not yet published to a Claude Code plugin marketplace — install from source for now.
-
-The official [1Password](https://1password.com) plugin for [Claude Code](https://code.claude.com). It ships three pieces that work together: a **PreToolUse hook** that validates locally mounted `.env` files before Bash commands run, an **agent skill** with the complete Developer Environment workflow, and **MCP configuration** for the 1Password desktop app server. Secret values stay in 1Password — the agent sees variable names and mount paths, not secret contents.
+A [1Password](https://1password.com) plugin for [Claude Code](https://code.claude.com), built and maintained by 1Password. It ships three pieces that work together: a **PreToolUse hook** that validates locally mounted `.env` files before Bash commands run, an **agent skill** with the complete Developer Environment workflow, and **MCP configuration** for the 1Password desktop app server. Secret values stay in 1Password — the agent sees variable names and mount paths, not secret contents.
 
 Install the **plugin** rather than hand-configuring an MCP entry on its own. The bundled `1password-environments` skill is the authoritative agent workflow; the MCP server's built-in documentation resources cover tool basics only and omit the import-and-mount steps.
 
@@ -19,7 +17,7 @@ Additional requirements by feature:
 - **Hook** — [sqlite3](https://www.sqlite.org/) installed and available in your `PATH` (pre-installed on macOS; install via your package manager on Linux)
 - **MCP** — the 1Password Labs **MCP Server** experiment enabled in the desktop app (`onepassword://settings/labs`). If the setting is missing, your account may not have the `ai-local-mcp-server` feature flag. The plugin's `.mcp.json` launches the `1password-mcp` command from your `PATH`, as described in the [1Password MCP server documentation](https://www.1password.dev/environments/mcp-server).
 
-> **Platform support:** MCP, local `.env` mounts, and mount validation are supported on **macOS and Linux**, including WSL. On **Windows**, the hook exits immediately with no decision so Bash is not blocked; 1Password Environments has no local `.env` mounts on Windows.
+> **Platform support:** MCP, local `.env` mounts, and mount validation are supported on **macOS and Linux**. On **Windows**, the hook exits immediately with no decision so Bash is not blocked; 1Password Environments has no local `.env` mounts on Windows.
 
 ## Installation and Setup
 
@@ -32,22 +30,22 @@ Before using this plugin, configure your secrets in 1Password:
 
 ### Step 2: Install the plugin
 
-When published, install from the Claude Code plugin marketplace. This registers the validation hook, the `1password-environments` agent skill, and the MCP server configuration together.
+Installing the plugin registers the validation hook, the `1password-environments` agent skill, and the MCP server configuration together.
 
-**From a marketplace** (once available):
+**From this repository.** This repo is itself a plugin marketplace, so add it directly by its GitHub `owner/repo` name — no separate catalog needed:
 
 ```
-/plugin marketplace add <marketplace-url>
+/plugin marketplace add 1Password/1password-claude-plugin
 /plugin install 1password@1password
 ```
 
-**For local development**, point Claude Code at this repository:
+Run `/plugin` afterwards to confirm the plugin is installed and the MCP server is connected.
+
+**For local development**, point Claude Code at a checkout instead:
 
 ```bash
 claude --plugin-dir /path/to/1password-claude-plugin
 ```
-
-See [Discover and install plugins](https://code.claude.com/docs/en/discover-plugins) and [Plugin marketplaces](https://code.claude.com/docs/en/plugin-marketplaces) for the full installation flow.
 
 ### Step 3: Enable MCP in 1Password (required for Environment management)
 
@@ -70,6 +68,8 @@ Install the 1Password desktop app on macOS or Linux so `1password-mcp` is availa
 ## Features
 
 ### Hooks
+
+See the [1Password Agent Hooks documentation](https://www.1password.dev/agent-hooks) for background on how 1Password's agent hooks work.
 
 #### Local `.env` File Validation (`PreToolUse`)
 
@@ -230,6 +230,7 @@ The validation hook emits **opt-in** telemetry so 1Password can understand plugi
 
 ## Resources
 
+- [1Password Agent Hooks documentation](https://www.1password.dev/agent-hooks) — how 1Password's agent hooks work
 - [1Password Agent Hooks](https://github.com/1Password/agent-hooks) — the original hooks repository this plugin is based on
 - [1Password Environments](https://developer.1password.com/docs/environments) — documentation for 1Password's environment and secrets management
 - [1Password Local `.env` Files](https://developer.1password.com/docs/environments/local-env-file) — how local `.env` file mounting works

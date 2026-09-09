@@ -43,6 +43,31 @@ this wrapper.
 
 This section **overrides** mount steps below on Windows.
 
+## Getting started (new user)
+
+Use when the request is open-ended — "how do I set up my environment?", "where do
+I start?" — rather than naming an operation.
+
+Orient in a sentence or two: secrets live in 1Password, the `.env` path becomes a
+live FIFO that 1Password feeds on demand, and their tooling reads `.env` as
+before. Do not paste the prerequisites list into chat.
+
+Check state before asking anything: **`authenticate`** (fastest real prerequisite
+check — on failure, fix setup per [reference.md](reference.md) → **When things
+fail**), **`list_environments`**, then look for a `.env` with Read or Glob, never
+Bash.
+
+Then route:
+
+| State | Go to |
+|-------|-------|
+| `.env` with real values | **Import from a `.env` file** — the common case |
+| Only `.env.example` / `.env.template` | **Import**, but ask for values; use the template's keys |
+| No `.env`, no Environments | **Create new Environment** → `append_variables` → mount at `{workspace_root}/.env` |
+| Environment exists, no mount | **Mount existing Environment** |
+
+Ask one question at a time, and only when the answer is not discoverable.
+
 ## Not done until
 
 **Import / create from `.env`** (including "using values from the project `.env`"):
