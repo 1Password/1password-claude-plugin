@@ -9,7 +9,7 @@
     {
       "name": "1password",
       "source": "./",
-      "description": "1Password Developer Environments for Claude Code",
+      "description": "Keep secrets, API keys, and tokens out of committed .env files by importing and mounting them as 1Password Developer Environments.",
       "category": "security"
     }
   ]
