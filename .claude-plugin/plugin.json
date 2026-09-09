@@ -2,7 +2,7 @@
   "name": "1password",
   "displayName": "1Password",
   "version": "0.1.0",
-  "description": "1Password Developer Environments for Claude Code: a PreToolUse hook that validates locally mounted .env files before Bash commands run. Requires the 1Password desktop app on macOS or Linux. In development — the agent skill and MCP configuration land in subsequent changes.",
+  "description": "1Password Developer Environments for Claude Code. Keeps project secrets, API keys, tokens, and credentials out of committed .env files. Provides MCP tools to create, import, and manage Environments and their environment variables; an agent skill with the full import-and-mount workflow; and a PreToolUse hook that validates locally mounted .env (dotenv) files before Bash commands run. Requires the 1Password desktop app on macOS or Linux with the Labs MCP Server enabled.",
   "author": {
     "name": "1Password"
   },
@@ -13,11 +13,16 @@
     "1password",
     "secrets",
     "security",
+    "api-key",
+    "credentials",
+    "token",
     "environment",
+    "environment-variables",
     "env",
     "dotenv",
     "developer-environments",
     "hooks",
-    "validation"
+    "validation",
+    "mcp"
   ]
 }
