@@ -35,8 +35,8 @@ Installing the plugin registers the validation hook, the `1password-environments
 **From this repository.** This repo is itself a plugin marketplace, so add it directly by its GitHub `owner/repo` name — no separate catalog needed:
 
 ```
-/plugin marketplace add 1Password/1password-claude-plugin
-/plugin install 1password@1password
+claude /plugin marketplace add 1Password/1password-claude-plugin
+claude /plugin install 1password@1password
 ```
 
 Run `/plugin` afterwards to confirm the plugin is installed and the MCP server is connected.
