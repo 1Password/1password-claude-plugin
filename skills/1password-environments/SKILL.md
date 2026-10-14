@@ -15,9 +15,9 @@ omit import-and-mount steps. Conceptual background and edge cases:
 
 ## Prerequisites
 
-- **macOS or Linux** with the 1Password desktop app installed (MCP, local `.env` mounts, and mount validation are not supported on Windows)
+- **macOS or Linux** with the 1Password desktop app installed (MCP and local `.env` mounts are not supported on Windows)
 - **MCP Server** Labs experiment enabled in the desktop app (`onepassword://settings/labs`)
-- Plugin installed via `/plugin install` (registers `1password-mcp` MCP config, this skill, and the mount validation hook together)
+- Plugin installed via `/plugin install` (registers `1password-mcp` MCP config and this skill together)
 
 Setup details: [reference.md](reference.md)
 
@@ -73,7 +73,7 @@ On **Windows**, skip mount steps — see **Windows** above.
 - Call `create_environment` when `list_environments` already shows that name — ask the user first (see **Duplicate environment name**)
 - Reveal secret values in chat
 - Read a mounted `.env` path — once mounted, the path is a live FIFO (named pipe); use `list_variables` instead
-- Verify a mount with **any** shell check (`test -f`, `[ -f ]`, `find -type f`, `test -p`, etc.). Use `list_local_env_files` — it is the only check that reflects both file state and whether the mount is *enabled* in 1Password. A disabled mount leaves the FIFO on disk, so `test -p` succeeds while the hook keeps blocking every Bash command. Shell checks are also unusable in exactly the broken case: when a mount is missing or invalid the hook denies all Bash, so the check cannot run. A failed `-f` check does not mean the mount is missing
+- Verify a mount with **any** shell check (`test -f`, `[ -f ]`, `find -type f`, `test -p`, etc.). Use `list_local_env_files` — it is the only check that reflects both file state and whether the mount is *enabled* in 1Password. A disabled mount leaves the FIFO on disk, so `test -p` succeeds even though the mount is off. A failed `-f` check does not mean the mount is missing
 
 ## MCP tools
 
@@ -129,9 +129,6 @@ Default path: `{workspace_root}/.env` unless the user names another path.
    - `create_local_env_file` with `accountId`, `environmentId`, `environmentName`, `mountPath` (absolute path of the original `.env`)
    - `list_local_env_files` again to verify
 
-If shell commands are blocked because 1Password expects a mount at the path, see
-[reference.md](reference.md) (mount conflict).
-
 ## Other flows
 
 **Create new Environment:** authenticate → `list_environments` → if the name exists, follow **Duplicate environment name** → `create_environment` only when the name is available or the user chose a different name.
@@ -157,16 +154,6 @@ When calling `append_variables`, set `concealed` per variable:
 - Never reveal secret values in chat
 - Ask before changing variables unless the request is explicit
 
-## Plugin hook
-
-The plugin runs `validate-mounted-env-files.sh` as a `PreToolUse` hook on the `Bash`
-tool. It blocks Bash commands when 1Password expects a mount that is missing,
-disabled, or not a FIFO (for example a plain `.env` still on disk at the mount
-path). Only Bash is gated — Read, Edit, and Grep are unaffected, so the import
-flow below never needs a shell.
-
-Validation modes and recovery steps: [reference.md](reference.md)
-
 ## Troubleshooting
 
-Mount conflict, validation modes, setup: [reference.md](reference.md)
+Mount problems, setup: [reference.md](reference.md)
