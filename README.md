@@ -1,8 +1,6 @@
 # 1Password Plugin for Claude Code
 
-> **Status:** both components are implemented (agent skill, MCP configuration). Not yet published to a Claude Code plugin marketplace — install from source for now.
-
-The official [1Password](https://1password.com) plugin for [Claude Code](https://code.claude.com). It ships two pieces that work together: an **agent skill** with the complete Developer Environment workflow, and **MCP configuration** for the 1Password desktop app server. Secret values stay in 1Password — the agent sees variable names and mount paths, not secret contents.
+A [1Password](https://1password.com) plugin for [Claude Code](https://code.claude.com), built and maintained by 1Password. It ships two pieces that work together: an **agent skill** with the complete Developer Environment workflow, and **MCP configuration** for the 1Password desktop app server. Secret values stay in 1Password — the agent sees variable names and mount paths, not secret contents.
 
 Install the **plugin** rather than hand-configuring an MCP entry on its own. The bundled `1password-environments` skill is the authoritative agent workflow; the MCP server's built-in documentation resources cover tool basics only and omit the import-and-mount steps.
 
@@ -18,7 +16,7 @@ Additional requirements by feature:
 
 - **MCP** — the 1Password Labs **MCP Server** experiment enabled in the desktop app (`onepassword://settings/labs`). If the setting is missing, your account may not have the `ai-local-mcp-server` feature flag. The plugin's `.mcp.json` launches the `1password-mcp` command from your `PATH`, as described in the [1Password MCP server documentation](https://www.1password.dev/environments/mcp-server).
 
-> **Platform support:** MCP and local `.env` mounts are supported on **macOS and Linux**, including WSL. 1Password Environments has no local `.env` mounts on Windows.
+> **Platform support:** MCP and local `.env` mounts are supported on **macOS and Linux**. 1Password Environments has no local `.env` mounts on Windows.
 
 ## Installation and Setup
 
@@ -31,22 +29,22 @@ Before using this plugin, configure your secrets in 1Password:
 
 ### Step 2: Install the plugin
 
-When published, install from the Claude Code plugin marketplace. This registers the `1password-environments` agent skill and the MCP server configuration together.
+Installing the plugin registers the `1password-environments` agent skill and the MCP server configuration together.
 
-**From a marketplace** (once available):
+**From this repository.** This repo is itself a plugin marketplace, so add it directly by its GitHub `owner/repo` name — no separate catalog needed:
 
 ```
-/plugin marketplace add <marketplace-url>
-/plugin install 1password@1password
+claude /plugin marketplace add 1Password/1password-claude-plugin
+claude /plugin install 1password@1password
 ```
 
-**For local development**, point Claude Code at this repository:
+Run `/plugin` afterwards to confirm the plugin is installed and the MCP server is connected.
+
+**For local development**, point Claude Code at a checkout instead:
 
 ```bash
 claude --plugin-dir /path/to/1password-claude-plugin
 ```
-
-See [Discover and install plugins](https://code.claude.com/docs/en/discover-plugins) and [Plugin marketplaces](https://code.claude.com/docs/en/plugin-marketplaces) for the full installation flow.
 
 ### Step 3: Enable MCP in 1Password (required for Environment management)
 
