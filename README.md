@@ -228,6 +228,40 @@ The validation hook emits **opt-in** telemetry so 1Password can understand plugi
 
 **To disable.** Open the 1Password desktop app → Settings → Manage Account → Data Usage and turn off product telemetry.
 
+## Releasing
+
+Each release gets its own PR. Don't change the version number in feature PRs.
+
+1. Create a release branch from the latest `main`, named after the new version, and push it:
+
+   ```bash
+   git checkout main
+   git pull
+   git checkout -b release/v0.3.0
+   git push -u origin release/v0.3.0
+   ```
+
+   The **Prepare release** workflow commits a version bump in [`.claude-plugin/plugin.json`](.claude-plugin/plugin.json) and an empty `0.3.0` section in [`CHANGELOG.md`](CHANGELOG.md) to the branch, then opens a `Release v0.3.0` PR.
+
+2. Pull the workflow's commit:
+
+   ```bash
+   git pull
+   ```
+
+3. Open `CHANGELOG.md` and write what changed under **Features**, **Fixes**, or **Security**. Delete any heading you don't use. The new section includes a comment listing the PRs merged since the last release, to help you remember what went in. Delete the comment when you're done.
+
+4. Commit and push:
+
+   ```bash
+   git commit -am "Update changelog for v0.3.0"
+   git push
+   ```
+
+5. Merge the PR. Merging it is the release.
+
+Claude Code only offers users an update when the `version` string changes, so changes merged to `main` reach existing users when the release PR is merged.
+
 ## Resources
 
 - [1Password Agent Hooks documentation](https://www.1password.dev/agent-hooks) — how 1Password's agent hooks work
