@@ -1,7 +1,7 @@
 {
   "name": "1password",
   "displayName": "1Password",
-  "version": "0.1.0",
+  "version": "9.9.9",
   "description": "Keep secrets, API keys, and tokens out of committed .env files by importing and mounting them as 1Password Developer Environments.",
   "author": {
     "name": "1Password"
