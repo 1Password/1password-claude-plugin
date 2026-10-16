@@ -31,14 +31,9 @@ Before using this plugin, configure your secrets in 1Password:
 
 Installing the plugin registers the `1password-environments` agent skill and the MCP server configuration together.
 
-**From this repository.** This repo is itself a plugin marketplace, so add it directly by its GitHub `owner/repo` name — no separate catalog needed:
+From the Claude desktop app or [claude.ai](https://claude.ai): Select **Customize** > **Plugins** > **Discover**, search for **1Password**, then select **Add**. The plugin syncs to Claude Code the next time you start a session signed in to the same Claude account.
 
-```
-claude /plugin marketplace add 1Password/1password-claude-plugin
-claude /plugin install 1password@1password
-```
-
-Run `/plugin` afterwards to confirm the plugin is installed and the MCP server is connected.
+In Claude Code, run `/plugin` afterwards to confirm the plugin is installed and the MCP server is connected.
 
 **For local development**, point Claude Code at a checkout instead:
 

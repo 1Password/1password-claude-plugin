@@ -11,7 +11,8 @@ This plugin ships:
 | MCP config | `.mcp.json` | Connects Claude Code to the 1Password desktop MCP server via `1password-mcp` (macOS/Linux) |
 | Agent skill | `skills/1password-environments/SKILL.md` | Import, mount, and Environment management workflow |
 
-Install the plugin with `/plugin install` — do not add the MCP server manually in
+Install the 1Password plugin from **Customize > Plugins > Discover** in the Claude
+desktop app or claude.ai — do not add the MCP server manually in
 user settings without the bundled skill.
 
 ## Official documentation
