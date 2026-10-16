@@ -16,7 +16,7 @@ omit import-and-mount steps. Conceptual background and edge cases:
 ## Prerequisites
 
 - **macOS or Linux** with the 1Password desktop app installed (MCP and local `.env` mounts are not supported on Windows)
-- **MCP Server** Labs experiment enabled in the desktop app (`onepassword://settings/labs`)
+- **Integrate with MCP clients** turned on under **Settings > Developer** in the desktop app
 - Plugin installed via `/plugin install` (registers `1password-mcp` MCP config and this skill together)
 
 Setup details: [reference.md](reference.md)
