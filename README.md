@@ -14,7 +14,7 @@ For more on 1Password's developer tools, see the [1Password Developer Documentat
 
 Additional requirements by feature:
 
-- **MCP** — the 1Password Labs **MCP Server** experiment enabled in the desktop app (`onepassword://settings/labs`). If the setting is missing, your account may not have the `ai-local-mcp-server` feature flag. The plugin's `.mcp.json` launches the `1password-mcp` command from your `PATH`, as described in the [1Password MCP server documentation](https://www.1password.dev/environments/mcp-server).
+- **MCP** — **Integrate with MCP clients** turned on under **Settings > Developer** in the desktop app. If the checkbox is missing, your account may not have the `ai-local-mcp-server` feature flag. The plugin's `.mcp.json` launches the `1password-mcp` command from your `PATH`, as described in the [1Password MCP server documentation](https://www.1password.dev/environments/mcp-server).
 
 > **Platform support:** MCP and local `.env` mounts are supported on **macOS and Linux**. 1Password Environments has no local `.env` mounts on Windows.
 
@@ -48,7 +48,7 @@ claude --plugin-dir /path/to/1password-claude-plugin
 
 ### Step 3: Enable MCP in 1Password (required for Environment management)
 
-Enable the **MCP Server** experiment in the 1Password desktop app: open **Settings → Labs** (or use `onepassword://settings/labs`) and turn on **MCP Server**. The plugin's `.mcp.json` connects Claude Code to that server after this step.
+In the 1Password desktop app, go to **Settings > Developer** and turn on **Integrate with MCP clients**. The plugin's `.mcp.json` connects Claude Code to that server after this step.
 
 The plugin registers the MCP command documented by 1Password:
 
@@ -97,7 +97,7 @@ Tools are namespaced `mcp__plugin_1password_1password__<tool>`.
 | `create_local_env_file` | Mount an Environment as a local `.env` file |
 | `list_local_env_files` | List existing local `.env` mounts for an Environment |
 
-Confirm the MCP server is connected with `/plugin` after installing the plugin and enabling the Labs experiment in 1Password.
+Confirm the MCP server is connected with `/plugin` after installing the plugin and turning on **Integrate with MCP clients** in 1Password.
 
 ## Plugin Structure
 
