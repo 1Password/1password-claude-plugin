@@ -130,11 +130,13 @@ Each release gets its own PR. Don't change the version number in feature PRs.
 
    The **Prepare release** workflow commits a version bump in [`.claude-plugin/plugin.json`](.claude-plugin/plugin.json) and an empty `0.3.0` section in [`CHANGELOG.md`](CHANGELOG.md) to the branch, then opens a `Release v0.3.0` PR.
 
-2. Pull the workflow's commit:
+2. Wait for the `Release v0.3.0` PR to appear (usually under a minute; you can watch the run in the **Actions** tab), then pull the workflow's commit:
 
    ```bash
    git pull
    ```
+
+   If you pull before the workflow finishes, you won't get its commit, and your next push will be rejected.
 
 3. Open `CHANGELOG.md` and write what changed under **Features**, **Fixes**, or **Security**. Delete any heading you don't use. The new section includes a comment listing the PRs merged since the last release, to help you remember what went in. Delete the comment when you're done.
 
@@ -145,9 +147,9 @@ Each release gets its own PR. Don't change the version number in feature PRs.
    git push
    ```
 
-5. Merge the PR. Merging it is the release.
+5. Merge the PR.
 
-Claude Code only offers users an update when the `version` string changes, so changes merged to `main` reach existing users when the release PR is merged.
+Merging doesn't ship the release to users right away. Anthropic's marketplace installs this plugin from a specific commit, so users get the new version after Anthropic reviews it and updates the marketplace to the new commit. Claude Code only offers an update when the `version` string changes, so changes merged to `main` between releases don't reach existing users.
 
 ## Resources
 
