@@ -110,6 +110,42 @@ Confirm the MCP server is connected with `/plugin` after installing the plugin a
 └── README.md
 ```
 
+## Releasing
+
+Each release gets its own PR. Don't change the version number in feature PRs.
+
+1. Create a release branch from the latest `main`, named after the new version, and push it:
+
+   ```bash
+   git checkout main
+   git pull
+   git checkout -b release/v0.3.0
+   git push -u origin release/v0.3.0
+   ```
+
+   The **Prepare release** workflow commits a version bump in [`.claude-plugin/plugin.json`](.claude-plugin/plugin.json) and an empty `0.3.0` section in [`CHANGELOG.md`](CHANGELOG.md) to the branch, then opens a `Release v0.3.0` PR.
+
+2. Wait for the `Release v0.3.0` PR to appear (usually under a minute; you can watch the run in the **Actions** tab), then pull the workflow's commit:
+
+   ```bash
+   git pull
+   ```
+
+   If you pull before the workflow finishes, you won't get its commit, and your next push will be rejected.
+
+3. Open `CHANGELOG.md` and write what changed under **Features**, **Fixes**, or **Security**. Delete any heading you don't use. The new section includes a comment listing the PRs merged since the last release, to help you remember what went in. Delete the comment when you're done.
+
+4. Commit and push:
+
+   ```bash
+   git commit -am "Update changelog for v0.3.0"
+   git push
+   ```
+
+5. Merge the PR.
+
+Merging doesn't ship the release to users right away. Anthropic's marketplace installs this plugin from a specific commit, so users get the new version after Anthropic reviews it and updates the marketplace to the new commit. Claude Code only offers an update when the `version` string changes, so changes merged to `main` between releases don't reach existing users.
+
 ## Resources
 
 - [1Password Environments](https://developer.1password.com/docs/environments) — documentation for 1Password's environment and secrets management
