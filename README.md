@@ -1,6 +1,6 @@
 # 1Password Plugin for Claude Code
 
-A [1Password](https://1password.com) plugin for [Claude Code](https://code.claude.com), built and maintained by 1Password. It ships two pieces that work together: an **agent skill** with the complete Developer Environment workflow, and **MCP configuration** for the 1Password desktop app server. Secret values stay in 1Password — the agent sees variable names and mount paths, not secret contents.
+A [1Password](https://1password.com) plugin for [Claude Code](https://code.claude.com), built and maintained by 1Password. It ships two pieces that work together: an **agent skill** with the complete Developer Environment workflow, and **MCP configuration** for the 1Password desktop app server. Secret values stay in 1Password — the agent sees secret names and mount paths, not secret contents.
 
 Install the **plugin** rather than hand-configuring an MCP entry on its own. The bundled `1password-environments` skill is the authoritative agent workflow; the MCP server's built-in documentation resources cover tool basics only and omit the import-and-mount steps.
 
@@ -63,7 +63,7 @@ Install the 1Password desktop app on macOS or Linux so `1password-mcp` is availa
 
 ### MCP and agent skill
 
-The plugin connects Claude Code to the local 1Password MCP server and bundles the **`1password-environments`** skill (`skills/1password-environments/SKILL.md`). Claude reads that skill before calling MCP tools — it defines the complete workflow for importing a plain `.env` file, appending variables, and mounting at the source path. The MCP server's built-in docs cover tool basics but omit those import-and-mount steps.
+The plugin connects Claude Code to the local 1Password MCP server and bundles the **`1password-environments`** skill (`skills/1password-environments/SKILL.md`). Claude reads that skill before calling MCP tools — it defines the complete workflow for importing a plain `.env` file, appending secrets, and mounting at the source path. The MCP server's built-in docs cover tool basics but omit those import-and-mount steps.
 
 See `skills/1password-environments/reference.md` for setup, mount problems, and troubleshooting.
 
@@ -71,7 +71,7 @@ See `skills/1password-environments/reference.md` for setup, mount problems, and 
 
 - "List my 1Password Environments"
 - "Mount my staging Environment as `.env` in this repo"
-- "What variables are in my production Environment?"
+- "What secrets are in my production Environment?"
 - "Create a new Environment called `my-app-dev`"
 - "Create an Environment from my project `.env` file"
 - "Import `.env` into 1Password and mount it here"
@@ -87,8 +87,8 @@ Tools are namespaced `mcp__plugin_1password_1password__<tool>`.
 | `list_environments` | List Developer Environments for an account |
 | `create_environment` | Create a new Developer Environment |
 | `rename_environment` | Rename an existing Developer Environment |
-| `list_variables` | List variable names in an Environment (no values) |
-| `append_variables` | Add or update Environment variables |
+| `list_secrets` | List secret names in an Environment (no values) |
+| `append_secrets` | Add or update Environment secrets |
 | `create_local_env_file` | Mount an Environment as a local `.env` file |
 | `list_local_env_files` | List existing local `.env` mounts for an Environment |
 
