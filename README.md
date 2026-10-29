@@ -59,6 +59,15 @@ The plugin registers the MCP command documented by 1Password:
 
 Install the 1Password desktop app on macOS or Linux so `1password-mcp` is available on your `PATH`. For platform-specific install paths and troubleshooting, see the [1Password MCP server documentation](https://www.1password.dev/environments/mcp-server).
 
+### Step 4: Allow Claude Code to access 1Password data (macOS 27 Golden Gate)
+
+On macOS 27 Golden Gate, macOS blocks apps from accessing 1Password app data by default and doesn't ask for permission. Until you allow it, the MCP server can't start, and `/plugin` shows the 1Password MCP server as failed.
+
+1. Open **System Settings** > **Privacy & Security** > **Files & Folders**.
+2. Select the app you run Claude Code in: the Claude desktop app, your terminal (like Terminal, iTerm, or Ghostty), or your editor (like Visual Studio Code).
+3. Turn on the setting that starts with **"Data shared by 1Password"**. The rest of the name depends on which 1Password apps you've installed.
+4. Quit and reopen the app, start a new Claude Code session, and run `/plugin` to confirm the MCP server is connected.
+
 ## Features
 
 ### MCP and agent skill
@@ -92,7 +101,7 @@ Tools are namespaced `mcp__plugin_1password_1password__<tool>`.
 | `create_local_env_file` | Mount an Environment as a local `.env` file |
 | `list_local_env_files` | List existing local `.env` mounts for an Environment |
 
-Confirm the MCP server is connected with `/plugin` after installing the plugin and turning on **Integrate with MCP clients** in 1Password.
+Confirm the MCP server is connected with `/plugin` after installing the plugin and turning on **Integrate with MCP clients** in 1Password. On macOS 27 Golden Gate, also complete [Step 4](#step-4-allow-claude-code-to-access-1password-data-macos-27-golden-gate).
 
 ## Plugin Structure
 
