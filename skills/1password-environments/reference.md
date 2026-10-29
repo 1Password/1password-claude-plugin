@@ -45,6 +45,7 @@ MCP server setup and platform details: [mcp-server.md](https://www.1password.dev
 
 - Authentication or environment access fails — the 1Password desktop app may need approval, unlocking, or account access
 - MCP server unavailable — turn on **Integrate with MCP clients** under **Settings > Developer**. If the checkbox is missing, update 1Password; your account may not have the `ai-local-mcp-server` feature flag. If it is disabled by an administrator, ask your administrator to check **Policies > Sharing and permissions > Agentic permissions > Local MCP server** — see [mcp-server.md](https://www.1password.dev/environments/mcp-server.md)
+- MCP server fails to start on macOS 27 Golden Gate (`Failed to start logger: Log cannot be written`) — macOS is blocking the app Claude Code runs in from 1Password app data. Ask the user to open **System Settings > Privacy & Security > Files & Folders**, select that app (the Claude desktop app, their terminal, or their editor), turn on the setting that starts with **"Data shared by 1Password"**, then quit and reopen the app. Full Disk Access is not needed
 - `create_local_env_file` fails — confirm the user is on macOS or Linux
 - A mount is missing or disabled — see **Mount problems** below
 
