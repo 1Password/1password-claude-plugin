@@ -4,34 +4,9 @@ All notable changes to this plugin are documented here. A new entry is added whe
 
 ## [0.2.2] - 2026-11-03
 
-### Features
--
-
 ### Fixes
--
-
-### Security
--
-
-<!--
-PRs merged since the last release (delete this comment when done):
-* Repo cleanup (#1)
-* Add validate mounted env hook (#2)
-* Add the agent skill and MCP configuration (#4)
-* Update docs and shorten plugin description (#5)
-* Remove hook to stop repeated macOS access prompts (#10)
-* docs: update MCP setup to use Developer settings (#14)
-* Update install steps (#15)
-* Add release workflow and changelog (#12)
-* Rename Environment "variables" to "secrets" (#13)
-* Apply GitHub Actions security best practices (#17)
-* Revert "Update variables to secrets (#13)" (#19)
-* Apply GitHub Actions security best practices (#18)
-* feat(mcp): tag MCP connections made through the plugin (#21)
-* Rename plugin display name to 1Password Developer Tools (#22)
-* Add macOS 27 MCP permission step to README and reference (#23)
-* Rename Environment "variables" to "secrets" (#20)
--->
+- The skill now uses the 1Password MCP server's renamed tools, `list_secrets` and `append_secrets`, and says "secrets" instead of "variables".
+- Added a setup step for macOS 27 Golden Gate, where macOS blocks access to 1Password app data until you allow it in System Settings.
 
 ## [0.2.1] - 2026-10-27
 
