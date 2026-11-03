@@ -5,8 +5,8 @@ All notable changes to this plugin are documented here. A new entry is added whe
 ## [0.2.2] - 2026-11-03
 
 ### Fixes
-- The skill now uses the 1Password MCP server's renamed tools, `list_secrets` and `append_secrets`, and says "secrets" instead of "variables".
-- Added a setup step for macOS 27 Golden Gate, where macOS blocks access to 1Password app data until you allow it in System Settings.
+- The skill now uses the 1Password MCP server's renamed tools, `list_secrets` and `append_secrets`, and says "secrets" instead of "variables". (#20)
+- Added a setup step for macOS 27 Golden Gate, where macOS blocks access to 1Password app data until you allow it in System Settings. (#23)
 
 ## [0.2.1] - 2026-10-27
 
