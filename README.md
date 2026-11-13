@@ -123,6 +123,8 @@ Confirm the MCP server is connected with `/plugin` after installing the plugin a
 
 Each release gets its own PR. Don't change the version number in feature PRs.
 
+The Anthropic plugin directory tracks the `stable` branch, not `main`. It scans every new commit on `stable` and can publish any commit that passes, so only finished releases go there. Feature, docs, and CI changes merge to `main` as usual and stay out of the directory until the next release. `stable` is protected: it changes only through reviewed PRs, and it can't be force-pushed or deleted.
+
 1. Create a release branch from the latest `main`, named after the new version, and push it:
 
    ```bash
@@ -151,9 +153,17 @@ Each release gets its own PR. Don't change the version number in feature PRs.
    git push
    ```
 
-5. Merge the PR.
+5. Merge the PR into `main`.
 
-Merging doesn't ship the release to users right away. Anthropic's marketplace installs this plugin from a specific commit, so users get the new version after Anthropic reviews it and updates the marketplace to the new commit. Claude Code only offers an update when the `version` string changes, so changes merged to `main` between releases don't reach existing users.
+6. Open a PR from `main` into `stable`:
+
+   ```bash
+   gh pr create --base stable --head main --title "Release v0.3.0 to stable" --body "Publishes v0.3.0 to the plugin directory."
+   ```
+
+   Merge it with **Create a merge commit**. Don't squash or rebase: `stable` has to keep `main`'s history, or the next release PR will conflict.
+
+Merging into `stable` doesn't ship the release to users right away. The directory scans the new commit, and users get the new version once Anthropic reviews and publishes it. Claude Code only offers an update when the `version` string changes.
 
 ## Resources
 
