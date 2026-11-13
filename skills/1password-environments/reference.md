@@ -51,6 +51,8 @@ MCP server setup and platform details: [mcp-server.md](https://www.1password.dev
 
 ## Mount problems
 
+If a project already has a tracked `.env` file, delete it and commit that removal before mounting a new one. A tracked file at the same path can confuse Git and leave the mounted `.env` in a half-enabled state.
+
 If `list_local_env_files` shows a mount that is missing or disabled:
 
 1. Check whether 1Password already has a destination for the same path (`list_local_env_files`, or the 1Password app Destinations tab)

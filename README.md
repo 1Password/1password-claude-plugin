@@ -27,6 +27,8 @@ Before using this plugin, configure your secrets in 1Password:
 1. [Create one or more Environments](https://developer.1password.com/docs/environments) in 1Password to store your project secrets.
 2. [Configure locally mounted `.env` files](https://developer.1password.com/docs/environments/local-env-file) for them.
 
+> If the project already has a tracked `.env` file, delete it and commit that removal before you mount a new one. A tracked `.env` and a mounted `.env` at the same path can confuse Git and leave the file in a confusing state.
+
 ### Step 2: Install the plugin
 
 Installing the plugin registers the `1password-environments` agent skill and the MCP server configuration together.
